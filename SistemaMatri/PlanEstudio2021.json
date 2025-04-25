@@ -1,0 +1,102 @@
+{
+  "Semestre 1": 
+   {
+    "S1UC1": {"Nombre": "Álgebra, Análisis y Geometría Analítica", "Creditos": 8, "Previas": [] },
+    "S1UC2": {"Nombre": "Mecánica, Ondas y Calor",  "Creditos": 10, "Previas": []},
+    "S1UC3": {"Nombre": "Química General e Inorgánica", "Creditos": 9, "Previas": []},
+    "S1UC4": {"Nombre": "Taller Inicial de Tecnologías", "Previas": []},
+    "S1UC5": {"Nombre": "Salud y Sociedad", "Creditos": 8, "Previas": []},
+    "S1UC6": {"Nombre": "Ingles 1", "Creditos": 4, "Previas": []}
+    },
+  "Semestre 2":
+   {
+    "S2UC1": {"Nombre": "Numeros Complejos y Ecuaciones Diferenciales", "Creditos": 8, "Previas": ["Álgebra, Análisis y Geometría Analítica"] },
+    "S2UC2": {"Nombre": "Electricidad y Magnetismo", "Creditos": 10, "Previas": ["Álgebra, Análisis y Geometría Analítica", "Mecánica, Ondas y Calor"]},
+    "S2UC3": {"Nombre": "Química Orgánica y Biológica", "Creditos": 9, "Previas": ["Química Orgánica y Biológica"]},
+    "S2UC4": {"Nombre": "Anatomía y Fisiologías Humanas", "Creditos": 10, "Previas": ["Salud y Sociedad", "Mecánica, Ondas y Calor"]},
+    "S2UC5": {"Nombre": "Ingles 2", "Creditos": 4, "Previas": []}
+    }
+    ,
+  "Semestre 3":
+   {
+    "S3UC1": {"Nombre": "Óptica y Radiaciones", "Creditos": 10, "Previas": ["Álgebra, Análisis y Geometría Analítica","Mecánica, Ondas y Calor"]},
+    "S3UC2": {"Nombre": "Electrónica Analógica", "Creditos": 10, "Previas": ["Numeros Complejos y Ecuaciones Diferenciales", "Electricidad y Magnetismo", "Taller Inicial de Tecnologias"]},
+    "S3UC3": {"Nombre": "Electroctenia", "Creditos": 9, "Previas": ["Numeros Complejos y Ecuaciones Diferenciales","Electricidad y Magnetismo"]},
+    "S3UC4": {"Nombre": "Instalaciones Hospitalarias", "Creditos": 9, "Previas": ["Química Orgánica y Biológica", "Anatomía y Fisiologías Humanas", "Electricidad y Magnetismo"]},
+    "S3UC5": {"Nombre": "Programación de Computadoras", "Creditos": 8, "Previas": ["Álgebra, Análisis y Geometría Analítica"]},
+    "S3UC6": {"Nombre": "Ingles 3", "Creditos": 4, "Previas": []}
+    }
+    ,
+  "Semestre 4":
+   {
+    "S4UC1": {"Nombre": "Electrofisiología Clínica", "Creditos": 10, "Previas": ["Anatomía y Fisiologías Humanas", "Electrónica Analógica"]},
+    "S4UC2": {"Nombre": "Electrónica Digital", "Creditos": 10, "Previas": ["Electrónica Analógica"]},
+    "S4UC3": {"Nombre": "Mecánica, Maquinas y Materiales", "Creditos": 9, "Previas": ["Álgebra, Análisis y Geometría Analítica", "Mecánica, Ondas y Calor"]},
+    "S4UC4": {"Nombre": "Imágenes Médicas", "Creditos": 10, "Previas": ["Anatomía y Fisiologías Humanas", "Óptica y Radiaciones"]},
+    "S4UC5": {"Nombre": "Práctica Profesional Curricular A (PPC A)", "Creditos": 12, "Previas": []},
+    "S4UC6": {"Nombre": "Ingles 4", "Creditos": 4, "Previas": []}
+    }
+    ,
+  "Semestre 5":
+   {
+    "S5UC1": {"Nombre": "Seguridad Eléctrica y Radiante", "Creditos": 10, "Previas": ["Electroctenia", "Instalaciones Hospitalarias", "Electrofisiología Clínica", "Imágenes Médicas"]},
+    "S5UC2": {"Nombre": "Normativa sobre Equipamientos Médicos", "Creditos": 8, "Previas": ["Electroctenia", "Instalaciones Hospitalarias", "Electrofisiología Clínica", "Imágenes Médicas"]},
+    "S5UC3": {"Nombre": "Taller de Mantenimiento de Equipos Médicos", "Creditos": 10, "Previas": ["Electroctenia", "Instalaciones Hospitalarias", "Electrofisiología Clínica", "Mecánica, Maquinas y Materiales", "Imágenes Médicas"]},
+    "S5UC4": {"Nombre": "Matemática Avanzada I", "Creditos": 9, "Previas": ["Numeros Complejos y Ecuaciones Diferenciales", "Programación de Computadoras"]},
+    "S5UC5": {"Nombre": "Ingles 5", "Creditos": 4, "Previas": []}
+    }
+    ,
+  "Semestre 6":
+   {
+    "S6UC1": {"Nombre": "Instrumental de Laboratorio Clínico", "Creditos": 9, "Previas": ["Química Orgánica y Biológica", "Instalaciones Hospitalarias"]},
+    "S6UC2": {"Nombre": "Informática Médica", "Creditos": 8, "Previas": ["Programación de Computadoras", "Electrofisiología Clínica", "Imágenes Médicas"]},
+    "S6UC3": {"Nombre": "Instrumentación Médica Complementaria", "Creditos": 10, "Previas": ["Electroctenia", "Instalaciones Hospitalarias", "Electrofisiología Clínica", "Imágenes Médicas"]},
+    "S6UC4": {"Nombre": "Matemática Avanzada II", "Creditos": 9, "Previas": ["Matemática Avanzada I"]},
+    "S6UC5": {"Nombre": "Física Avanzada", "Creditos": 8, "Previas": ["Óptica y Radiaciones"]},
+    "S6UC6": {"Nombre": "Proyecto Final de Titulación (a nivel Tecnólogo)", "Creditos": 8, "Previas": []},
+    "S6UC7": {"Nombre": "Ingles 6", "Creditos": 4, "Previas": []}
+    }
+    ,
+  "Semestre 7":
+  {
+    "S7UC1": {"Nombre": "Fisiopatología", "Creditos": 9, "Previas": ["Instrumental de Laboratorio Clínico", "Instrumentación Médica Complementaria"]},
+    "S7UC2": {"Nombre": "Radicaciones No-ionizantes", "Creditos": 7, "Previas":["Matemática Avanzada 1", "Física Avanzada"]},
+    "S7UC3": {"Nombre": "Programación Digital Avanzada", "Creditos": 7, "Previas": ["Instrumental de Laboratorio Clínico", "Instrumentación Médica Complementaria"]},
+    "S7UC4": {"Nombre": "Legislación para la Salud", "Creditos": 5, "Previas": ["Normativa sobre Equipamiento Médico","Instrumental de Laboratorio Clínico","Informática Médica", "Instrumentación Médica Complementaria"]},
+    "S7UC5": {"Nombre": "Economía para la Salud", "Creditos": 5, "Previas": ["Normativa sobre Equipamiento Médico","Instrumental de Laboratorio Clínico","Informática Médica", "Instrumentación Médica Complementaria"]},
+    "S7UC6": {"Nombre": "Ingles 7", "Creditos": 4, "Previas": []}
+    }
+    ,
+  "Semestre 8":
+  {
+  "S8UC1": {"Nombre": "Bioestadística", "Creditos": 7, "Previas": ["Informática Médica"]},
+  "S8UC2": {"Nombre": "Señales y Sistemas", "Creditos": 8, "Previas": ["Electrofisiología Clínica", "Matemática Avanzada II"]},
+  "S8UC3": {"Nombre": "Biomecánica y Biomateriales", "Creditos": 7, "Previas": ["Anatomía y Fisiología Humanas", "Mecánica, Máquinas y Materiales"]},
+  "S8UC4": {"Nombre": "Metodología de la Investigación", "Creditos": 5, "Previas": ["Física Avanzada", "Fisiopatología"]},
+  "S8UC5": {"Nombre": "Higiene y Seguridad en Ambientes Hospitalarios", "Creditos": 5, "Previas": ["Fisiopatología", "Legislación para la Salud"]},
+  "S8UC6": {"Nombre": "Ingles 8", "Creditos": 4, "Previas": []}
+    }
+    ,
+  "Semestre 9":
+  {
+  "S9UC1": {"Nombre": "Radioterapia", "Creditos": 7, "Previas": ["Seguridad Eléctrica y Radiante", "Física Avanzada", "Fisiopatología"]},
+  "S9UC2": {"Nombre": "Gestión de Sistemas de Salud", "Creditos": 9, "Previas": ["Fisiopatología", "Legislación para la Salud", "Economía para la Salud", "Bioestadística"]},
+  "S9UC3": {"Nombre": "Investigación Clínica y Bioética", "Creditos": 7, "Previas": ["Metodología de la Investigación", "Higiene y Seguridad en Ambientes Hospitalarios"]},
+  "S9UC4": {"Nombre": "Electiva 1", "Creditos": 4, "Previas": ["Bioestadística", "Señales y Sistemas", "Biomecánica y Biomateriales", "Metodología de la Investigación", "Higiene y Seguridad en Ambientes Hospitalarios"]},
+  "S9UC5": {"Nombre": "Electiva 2", "Creditos": 4, "Previas": ["Bioestadística", "Señales y Sistemas", "Biomecánica y Biomateriales", "Metodología de la Investigación", "Higiene y Seguridad en Ambientes Hospitalarios"]},
+  "S9UC6": {"Nombre": "Práctica Profesional Curricular B", "Creditos": 6, "Previas": ["Bioestadística", "Señales y Sistemas", "Biomecánica y Biomateriales", "Metodología de la Investigación", "Higiene y Seguridad en Ambientes Hospitalarios"]},
+  "S9UC7": {"Nombre": "Ingles 9", "Creditos": 4, "Previas": []}
+    }
+    ,
+  "Semestre 10":
+  {
+  "S10UC1": {"Nombre": "Telesalud y Telemedicina", "Creditos": 8, "Previas": ["Gestión de Sistemas de Salud"]},
+  "S10UC2": {"Nombre": "Electiva 3", "Creditos": 4, "Previas": ["Radioterapia", "Gestión de Sistemas de Salud", "Investigación Clínica y Bioética"]},
+  "S10UC3": {"Nombre": "Electiva 4", "Creditos": 4, "Previas": ["Radioterapia", "Gestión de Sistemas de Salud", "Investigación Clínica y Bioética"]},
+  "S10UC4": {"Nombre": "Proyecto Final de Titulacion (nivel Ingenieria - PFT T)", "Creditos": 8, "Previas": []},
+  "S10UC5": {"Nombre": "Ingles 10", "Creditos": 4, "Previas": []}
+    }
+}
+
+
+
