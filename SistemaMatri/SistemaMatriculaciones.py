@@ -145,32 +145,37 @@ class GestorExpediente:
         with open(self.archivo, 'r', encoding='utf-8') as file:
             self.data = json.load(file)
         return self.data
+    
+    def actualizar_archivo(self, info):
+        """Actualiza el expediente"""
+        with open(self.archivo, 'w', encoding='utf-8') as file:
+            json.dump(info, file, ensure_ascii=False, indent=4)
 
-    def agregarExamenInscripto(self, uc: UC):
-        """
-        Agrega una UC a la lista de "Inscripción Examen".
-
-        Args:
-            uc (UC): Objeto UC de la materia que se quiere agregar.
-
-        Returns:
-            bool: True si se inscribió correctamente, False si ya estaba inscrita.
-        """
+        self.data = info
+        return True
+    
+    def _inscribir_examen(self, uc: UC):
+  
         datos = self.cargarDatos()
         nombre_uc = uc.nombreMateria()
-
-        if nombre_uc not in datos["Inscripción Examen"]:
-            datos["Inscripción Examen"].append(nombre_uc)
-        else:
+        requisitos = uc.nombrePrevias()
+        
+        if nombre_uc in datos["Inscripción Examen"]:
             return False
 
-        with open(self.archivo, 'w', encoding='utf-8') as file:
-            json.dump(datos, file, ensure_ascii=False, indent=4)
-
-        self.data = datos
-        return True
-
-    def quitarUcExamen(self, materia: UC):
+        if not requisitos:
+            datos["Inscripción Examen"].append(nombre_uc)
+            self.actualizar_archivo(datos)
+            return True
+        else:
+            for requisito in requisitos:
+                if requisito not in datos["Materias Aprobadas"]:
+                    return False
+            datos["Inscripción Examen"].append(nombre_uc)
+            self.actualizar_archivo(datos)
+            return True
+    
+    def _quitar_examen(self, materia: UC):
         """
         Elimina una UC de la lista de inscripción a examen.
 
@@ -182,13 +187,42 @@ class GestorExpediente:
 
         if uc in datos["Inscripción Examen"]:
             datos["Inscripción Examen"].remove(uc)
+        
+        self.actualizar_archivo(datos)
 
-        with open(self.archivo, 'w', encoding='utf-8') as file:
-            json.dump(datos, file, ensure_ascii=False, indent=4)
+    def _matricular_uc(self, uc: UC):
 
-        self.data = datos
+        datos = self.cargarDatos()
+        nombre_uc = uc.nombreMateria()
+        requisitos = uc.nombrePrevias()
+        
+        if nombre_uc in datos["Materias Matriculadas"] or nombre_uc in datos["Materias Aprobadas"]:
+            return False
 
-    def agregarUcsAprobadas(self, materia: UC):
+        if not requisitos:
+            datos["Materias Matriculadas"].append(nombre_uc)
+            self.actualizar_archivo(datos)
+            return True
+        else:
+            for requisito in requisitos:
+                if requisito not in datos["Materias Aprobadas"] and requisito not in datos["Materias Matriculadas"]:
+                    return False
+            datos["Inscripción Examen"].append(nombre_uc)
+            self.actualizar_archivo(datos)
+            return True
+
+        # self.inscriptos(materia)
+
+    def _desmatricular_uc(self, materia: UC):
+
+        datos = self.cargarDatos()
+        uc = materia.nombreMateria()
+
+        if uc in datos["Materias Matriculadas"]:
+            datos["Materias Matriculadas"].remove(uc)
+        self.actualizar_archivo(datos)
+
+    def _agregar_uc_aprobada(self, materia: UC):
         """
         Agrega una UC aprobada y suma sus créditos.
 
@@ -206,13 +240,10 @@ class GestorExpediente:
             datos["Materias Aprobadas"].append(uc)
             datos["Créditos"] += creditos
 
-        with open(self.archivo, 'w', encoding='utf-8') as file:
-            json.dump(datos, file, ensure_ascii=False, indent=4)
-
-        self.data = datos
+        self.actualizar_archivo(datos)
         return True
-
-    def quitarUcsAprobadas(self, materia: UC):
+    
+    def _quitar_uc_aprobada(self, materia: UC):
         """
         Elimina una UC aprobada y descuenta sus créditos.
 
@@ -227,10 +258,8 @@ class GestorExpediente:
             datos["Materias Aprobadas"].remove(uc)
             datos["Créditos"] -= creditos
 
-        with open(self.archivo, 'w', encoding='utf-8') as file:
-            json.dump(datos, file, ensure_ascii=False, indent=4)
-
-        self.data = datos
+        self.actualizar_archivo(datos)
+        return True
 
     def inscriptos(self, materia2: UC):
 
@@ -249,35 +278,6 @@ class GestorExpediente:
 
         with open(archivo, 'w', encoding='utf-8') as file3:
             json.dump(self.contenido, file3, ensure_ascii=False, indent=4)
-
-    def matricular(self, materia: UC):
-
-        datos = self.cargarDatos()
-        uc = materia.nombreMateria()
-
-        if uc not in datos["Materias Matriculadas"]:
-            datos["Materias Matriculadas"].append(uc)
-
-        with open(self.archivo, 'w', encoding='utf-8') as file:
-            json.dump(datos, file, ensure_ascii=False, indent=4)
-
-        self.data = datos
-
-        self.inscriptos(materia)
-
-    def desmatricular(self, materia: UC):
-
-        datos = self.cargarDatos()
-        uc = materia.nombreMateria()
-        creditos = materia.getCreditos()
-
-        if uc in datos["Materias Matriculadas"]:
-            datos["Materias Matriculadas"].remove(uc)
-
-        with open(self.archivo, 'w', encoding='utf-8') as file:
-            json.dump(datos, file, ensure_ascii=False, indent=4)
-
-        self.data = datos
 
     def verListaInscriptos(self, registro = "Registros.json"):
         self.registros = registro
@@ -300,15 +300,15 @@ class Estudiante():
         """
         self.usuario = usuario
 
-        self.datosEstudiante = usuario.cargarDatos()
-        self.nombre = self.datosEstudiante["Nombre"]
-        self.cedula = self.datosEstudiante["Cedula"]
-        self.aprobadas = self.datosEstudiante["Materias Aprobadas"]
-        self.matriculadas = self.datosEstudiante["Materias Matriculadas"]
-        self.examen = self.datosEstudiante["Inscripción Examen"]
-        self.creditos = self.datosEstudiante["Créditos"]
+        self.estudiante = usuario.cargarDatos()
+        self.nombre = self.estudiante["Nombre"]
+        self.cedula = self.estudiante["Cedula"]
+        self.aprobadas = self.estudiante["Materias Aprobadas"]
+        self.matriculadas = self.estudiante["Materias Matriculadas"]
+        self.examen = self.estudiante["Inscripción Examen"]
+        self.creditos = self.estudiante["Créditos"]
 
-    def infoEstudiante(self):
+    def info_estudiante(self):
         """
         Devuelve nombre y cédula del estudiante.
 
@@ -317,7 +317,7 @@ class Estudiante():
         """
         return self.nombre, self.cedula
 
-    def ucsAprobadas(self):
+    def ucs_aprobadas(self):
         """
         Retorna una lista con las materias aprobadas del estudiante.
 
@@ -326,7 +326,7 @@ class Estudiante():
         """
         return self.aprobadas
 
-    def inscribirseExamen(self, materia: UC):
+    def inscribir_examen(self, materia: UC):
         """
         Permite al estudiante inscribirse a un examen si cumple con las previas.
 
@@ -336,45 +336,28 @@ class Estudiante():
         Returns:
             bool: True si cumple con las previas, False si no cumple.
         """
-        requisitos = materia.nombrePrevias()
-        uc = materia.nombreMateria()
 
-        if not requisitos:
-            self.usuario.agregarExamenInscripto(materia)
-            return True
-
-        for requisito in requisitos:
-            if requisito not in self.aprobadas and requisito not in self.matriculadas:
-                return False
-
-        self.usuario.agregarExamenInscripto(materia)
+        self.usuario._inscribir_examen(materia)
         return True
 
-    def quitatExamen(self, materia: UC):
+    def quitar_examen(self, materia: UC):
         """
         Método para eliminar la inscripción a un examen.
 
         Args:
             materia (UC): Materia a quitar.
         """
-        self.usuario.quitarUcExamen(materia)
-    
-    def matricularUC(self, materia: UC):
-        previas = materia.nombrePrevias()
-
-        if not previas:
-            self.usuario.matricular(materia)
-            return True
-
-        for previa in previas:
-            if previa not in self.aprobadas and previa not in self.examen and previa not in self.matriculadas:
-                return False
-
-        self.usuario.matricular(materia)
+        self.usuario._quitar_examen(materia)
         return True
     
-    def desmatricularUC(self, materia: UC):
-        self.usuario.desmatricular(materia)
+    def matricular_uc(self, materia: UC):
+
+        self.usuario._matricular_uc(materia)
+        return True
+    
+    def desmatricular_uc(self, materia: UC):
+        self.usuario._desmatricular_uc(materia)
+        return True
 
     def __str__(self):
         """
@@ -406,7 +389,7 @@ class Secretaria():
         """
         self.nombre = nombre
 
-    def cargarEstudiante(self, expediente: GestorExpediente):
+    def cargar_estudiante(self, expediente: GestorExpediente):
         """
         Carga un estudiante desde su expediente.
 
@@ -414,26 +397,32 @@ class Secretaria():
             expediente (GestorExpediente): Archivo del estudiante.
         """
         self.expediente = expediente
-        self.estudiante = Estudiante(expediente)
 
-    def inscribirEstExamen(self, materia: UC):
+    def inscribir_examen(self, materia: UC):
         """
         Inscribe al estudiante a un examen.
 
         Args:
             materia (UC): Objeto UC al que se quiere inscribir.
         """
-        self.estudiante.inscribirseExamen(materia)
 
-    def quitarExamenEstudiante(self, materia: UC):
+        self.expediente._inscribir_examen(materia)
+
+    def quitar_examen(self, materia: UC):
         """
         Elimina una inscripción a examen.
 
         Args:
             materia (UC): Materia a quitar.
         """
-        self.estudiante.quitatExamen(materia)
+        self.expediente._quitar_examen(materia)
+    
+    def matricular_uc(self, materia: UC):
+        self.expediente._matricular_uc(materia)
 
+    def desmatricular_uc(self, materia: UC):
+        self.expediente._desmatricular_uc(materia)
+    
     def agregar_uc_aprobada(self, aprobada: UC) -> bool:
         """
         Agrega una materia aprobada al expediente del estudiante.
@@ -444,13 +433,11 @@ class Secretaria():
         Returns:
             bool: True si se agregó correctamente, False si ya existía.
         """
-        uc = aprobada.nombreMateria()
-        if uc not in self.estudiante.ucsAprobadas():
-            self.expediente.agregarUcsAprobadas(aprobada)
-            return True
-        return False
+        self.expediente._agregar_uc_aprobada(aprobada)
 
-    def quitar_uc(self, materia: UC) -> bool:
+        return True
+    
+    def quitar_uc_aprobada(self, materia: UC) -> bool:
         """
         Elimina una UC aprobada del expediente.
 
@@ -460,14 +447,8 @@ class Secretaria():
         Returns:
             bool: True si se eliminó correctamente.
         """
-        self.expediente.quitarUcsAprobadas(materia)
+        self.expediente._quitar_uc_aprobada(materia)
         return True
     
-    def matricularEstudiante(self, materia: UC):
-        self.estudiante.matricularUC(materia)
-
-    def desmatricularEstudiante(self, materia: UC):
-        self.estudiante.desmatricularUC(materia)
-    
-    def verInscriptos(self):
-        return self.expediente.verListaInscriptos()
+    # def ver_inscriptos(self):
+    #     return self.expediente.verListaInscriptos()
