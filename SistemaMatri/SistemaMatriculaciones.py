@@ -134,29 +134,53 @@ class GestorExpediente:
             json.dump(self.datos, file, ensure_ascii=False, indent=indentacion)
 
         self.data = self.datos
-
-    def cargarDatos(self):
+    
+    def crear_registros(self, indentacion: int = 4):
         """
-        Carga el contenido del archivo JSON del estudiante.
+        Crea un archivo JSON para guardar las inscripciones de Matriculas y Examenes.
 
+        Args:
+            indentacion (int): Nivel de indentación para el formato JSON.
+        """
+        self.nombre_registros = "Registros.json"
+        self.registros = {
+            "Matriculas": {},
+            "Examenes": {}}
+
+        with open(self.nombre_registros, 'w', encoding='utf-8') as file:
+            json.dump(self.registros, file, ensure_ascii=False, indent=indentacion)
+
+    def cargarDatos(self, nombre_archivo:str):
+        """
+        Carga el contenido de un archivo JSON.
+        Args:
+            nombre_archivo: Nombre del archivo a cargar
         Returns:
             dict: Datos del estudiante.
         """
-        with open(self.archivo, 'r', encoding='utf-8') as file:
+        with open(nombre_archivo, 'r', encoding='utf-8') as file:
             self.data = json.load(file)
         return self.data
     
-    def actualizar_archivo(self, info):
-        """Actualiza el expediente"""
-        with open(self.archivo, 'w', encoding='utf-8') as file:
+    def actualizar_archivo(self, nombre_archivo, info):
+        """
+        Actualiza un archivo JSON
+        Args:
+            nombre_archivo: Nombre del archivo a modificar
+            info: Nueva información para el archivo"""
+        with open(nombre_archivo, 'w', encoding='utf-8') as file:
             json.dump(info, file, ensure_ascii=False, indent=4)
 
         self.data = info
         return True
     
     def _inscribir_examen(self, uc: UC):
+        """
+        Inscribe a un estudiante a examen
+        Args:
+            uc: Objeto UC"""
   
-        datos = self.cargarDatos()
+        datos = self.cargarDatos(self.archivo)
         nombre_uc = uc.nombreMateria()
         requisitos = uc.nombrePrevias()
         
@@ -165,14 +189,16 @@ class GestorExpediente:
 
         if not requisitos:
             datos["Inscripción Examen"].append(nombre_uc)
-            self.actualizar_archivo(datos)
+            self.actualizar_archivo(self.archivo, datos)
+            self._registrar_inscripcion(uc, "Examen")
             return True
         else:
             for requisito in requisitos:
                 if requisito not in datos["Materias Aprobadas"]:
                     return False
             datos["Inscripción Examen"].append(nombre_uc)
-            self.actualizar_archivo(datos)
+            self.actualizar_archivo(self.archivo, datos)
+            self._registrar_inscripcion(uc, "Examen")
             return True
     
     def _quitar_examen(self, materia: UC):
@@ -180,19 +206,20 @@ class GestorExpediente:
         Elimina una UC de la lista de inscripción a examen.
 
         Args:
-            materia (UC): Objeto UC de la materia a eliminar.
-        """
-        datos = self.cargarDatos()
+            materia (UC): Objeto UC de la materia a eliminar"""
+        datos = self.cargarDatos(self.archivo)
         uc = materia.nombreMateria()
 
         if uc in datos["Inscripción Examen"]:
             datos["Inscripción Examen"].remove(uc)
+            self._eliminar_inscripcion(materia, "Examen")
         
-        self.actualizar_archivo(datos)
+        self.actualizar_archivo(self.archivo, datos)
 
     def _matricular_uc(self, uc: UC):
+        """Matricula a un estudiante"""
 
-        datos = self.cargarDatos()
+        datos = self.cargarDatos(self.archivo)
         nombre_uc = uc.nombreMateria()
         requisitos = uc.nombrePrevias()
         
@@ -201,38 +228,38 @@ class GestorExpediente:
 
         if not requisitos:
             datos["Materias Matriculadas"].append(nombre_uc)
-            self.actualizar_archivo(datos)
+            self.actualizar_archivo(self.archivo, datos)
+            self._registrar_inscripcion(uc, "Matricula")
             return True
         else:
             for requisito in requisitos:
                 if requisito not in datos["Materias Aprobadas"] and requisito not in datos["Materias Matriculadas"]:
                     return False
             datos["Inscripción Examen"].append(nombre_uc)
-            self.actualizar_archivo(datos)
+            self.actualizar_archivo(self.archivo, datos)
+            self._registrar_inscripcion(uc, "Matricula")
             return True
 
-        # self.inscriptos(materia)
-
     def _desmatricular_uc(self, materia: UC):
+        """Desmatricula a un estudiante de una UC"""
 
-        datos = self.cargarDatos()
+        datos = self.cargarDatos(self.archivo)
         uc = materia.nombreMateria()
 
         if uc in datos["Materias Matriculadas"]:
             datos["Materias Matriculadas"].remove(uc)
-        self.actualizar_archivo(datos)
+            self._eliminar_inscripcion(materia, "Matricula")
+        self.actualizar_archivo(self.archivo, datos)
 
     def _agregar_uc_aprobada(self, materia: UC):
         """
         Agrega una UC aprobada y suma sus créditos.
-
         Args:
             materia (UC): Objeto UC de la materia a agregar.
-
         Returns:
             bool: True si la materia se agregó correctamente.
         """
-        datos = self.cargarDatos()
+        datos = self.cargarDatos(self.archivo)
         uc = materia.nombreMateria()
         creditos = materia.getCreditos()
 
@@ -240,17 +267,16 @@ class GestorExpediente:
             datos["Materias Aprobadas"].append(uc)
             datos["Créditos"] += creditos
 
-        self.actualizar_archivo(datos)
+        self.actualizar_archivo(self.archivo, datos)
         return True
     
     def _quitar_uc_aprobada(self, materia: UC):
         """
         Elimina una UC aprobada y descuenta sus créditos.
-
         Args:
             materia (UC): Objeto UC de la materia a eliminar.
         """
-        datos = self.cargarDatos()
+        datos = self.cargarDatos(self.archivo)
         uc = materia.nombreMateria()
         creditos = materia.getCreditos()
 
@@ -258,33 +284,72 @@ class GestorExpediente:
             datos["Materias Aprobadas"].remove(uc)
             datos["Créditos"] -= creditos
 
-        self.actualizar_archivo(datos)
+        self.actualizar_archivo(self.archivo, datos)
         return True
 
-    def inscriptos(self, materia2: UC):
-
-        archivo = "Registros.json"
-        uc = materia2.nombreMateria()
+    def _registrar_inscripcion(self, materia: UC, instancia:str):
+        """
+        Cuando un estudiante se inscribe a un examen o se matricula, se guarda su nombre en el archivo "Registros.json" 
+        Este método se utiliza automaticamente con los metodos _matricular_uc() y _inscribir_examen()
+        Args:
+            instancia: Define como se va a utilizar el método. Puede ser "Examen" o "Matricula"
+            materia: Objeto UC """
+        
+        uc = materia.nombreMateria()
         nombre = self.data['Nombre']
 
-        with open(archivo, 'r', encoding='utf-8') as file2:
-            self.contenido = json.load(file2)
+        self.contenido = self.cargarDatos(self.nombre_registros)
 
-        if uc not in self.contenido:
-            self.contenido[uc] = []
+        if instancia == "Examen":    
+            if uc not in self.contenido["Examenes"]:
+                self.contenido["Examenes"][uc] = []
+            if nombre not in self.contenido["Examenes"][uc]:
+                self.contenido["Examenes"][uc].append(nombre)
         
-        if nombre not in self.contenido[uc]:
-            self.contenido[uc].append(nombre)
+        if instancia == "Matricula":
+            if uc not in self.contenido["Matriculas"]:
+                self.contenido["Matriculas"][uc] = []
+            if nombre not in self.contenido["Matriculas"][uc]:
+                self.contenido["Matriculas"][uc].append(nombre)
+        
+        self.actualizar_archivo(self.nombre_registros, self.contenido)
+    
+    def _eliminar_inscripcion(self, materia: UC, instancia:str):
+        """
+        Cuando un estudiante se desinscribe de un examen o se desmatricula, se guarda su nombre en el archivo "Registros.json" 
+        Este método se utiliza automaticamente con los metodos _matricular_uc() y _inscribir_examen()
+        Args:
+            instancia: Define como se va a utilizar el método. Puede ser "Examen" o "Matricula"
+            materia: Objeto UC """
 
-        with open(archivo, 'w', encoding='utf-8') as file3:
-            json.dump(self.contenido, file3, ensure_ascii=False, indent=4)
+        uc = materia.nombreMateria()
+        nombre = self.data['Nombre']
 
-    def verListaInscriptos(self, registro = "Registros.json"):
-        self.registros = registro
-        with open(self.registros, "r", encoding="utf-8") as ver_registros:
-            ver_registros = json.load(ver_registros)
-        return ver_registros
+        self.contenido = self.cargarDatos(self.nombre_registros)
 
+        if instancia == "Examen":    
+            if uc in self.contenido["Examenes"]:
+                if nombre in self.contenido["Examenes"][uc]:
+                    self.contenido["Examenes"][uc].remove(nombre)
+        
+        if instancia == "Matricula":
+            if uc in self.contenido["Matriculas"]:
+                if nombre in self.contenido["Matriculas"][uc]:
+                    self.contenido["Matriculas"][uc].remove(nombre)
+        
+        self.actualizar_archivo(self.nombre_registros, self.contenido)
+
+    def _inscriptos_examen(self):
+        """Muestra los estudiantes inscriptos a examenes"""
+        datos = self.cargarDatos(self.nombre_registros)
+        inscriptos = datos["Examenes"]
+        return inscriptos
+    
+    def _inscriptos_matriculas(self):
+        """Muestra los estudiantes matriculados a diferentes UCs"""
+        datos = self.cargarDatos(self.nombre_registros)
+        inscriptos = datos["Matriculas"]
+        return inscriptos
 
 class Estudiante():
     """
@@ -300,7 +365,7 @@ class Estudiante():
         """
         self.usuario = usuario
 
-        self.estudiante = usuario.cargarDatos()
+        self.estudiante = usuario.cargarDatos(self.usuario.archivo)
         self.nombre = self.estudiante["Nombre"]
         self.cedula = self.estudiante["Cedula"]
         self.aprobadas = self.estudiante["Materias Aprobadas"]
@@ -308,19 +373,17 @@ class Estudiante():
         self.examen = self.estudiante["Inscripción Examen"]
         self.creditos = self.estudiante["Créditos"]
 
-    def info_estudiante(self):
+    def info_estudiante(self) -> tuple:
         """
         Devuelve nombre y cédula del estudiante.
-
         Returns:
             tuple: Nombre y cédula del estudiante.
         """
         return self.nombre, self.cedula
 
-    def ucs_aprobadas(self):
+    def ucs_aprobadas(self) -> list:
         """
         Retorna una lista con las materias aprobadas del estudiante.
-
         Returns:
             list: Materias aprobadas.
         """
@@ -329,10 +392,8 @@ class Estudiante():
     def inscribir_examen(self, materia: UC):
         """
         Permite al estudiante inscribirse a un examen si cumple con las previas.
-
         Args:
             materia (UC): Objeto UC con la información de la materia.
-
         Returns:
             bool: True si cumple con las previas, False si no cumple.
         """
@@ -343,7 +404,6 @@ class Estudiante():
     def quitar_examen(self, materia: UC):
         """
         Método para eliminar la inscripción a un examen.
-
         Args:
             materia (UC): Materia a quitar.
         """
@@ -351,7 +411,6 @@ class Estudiante():
         return True
     
     def matricular_uc(self, materia: UC):
-
         self.usuario._matricular_uc(materia)
         return True
     
@@ -362,7 +421,6 @@ class Estudiante():
     def __str__(self):
         """
         Representación en string del estudiante.
-
         Returns:
             str: Información básica del estudiante.
         """
@@ -383,7 +441,6 @@ class Secretaria():
     def __init__(self, nombre: str):
         """
         Inicializa la secretaria.
-
         Args:
             nombre (str): Nombre de la secretaria.
         """
@@ -392,7 +449,6 @@ class Secretaria():
     def cargar_estudiante(self, expediente: GestorExpediente):
         """
         Carga un estudiante desde su expediente.
-
         Args:
             expediente (GestorExpediente): Archivo del estudiante.
         """
@@ -401,7 +457,6 @@ class Secretaria():
     def inscribir_examen(self, materia: UC):
         """
         Inscribe al estudiante a un examen.
-
         Args:
             materia (UC): Objeto UC al que se quiere inscribir.
         """
@@ -411,7 +466,6 @@ class Secretaria():
     def quitar_examen(self, materia: UC):
         """
         Elimina una inscripción a examen.
-
         Args:
             materia (UC): Materia a quitar.
         """
@@ -426,10 +480,8 @@ class Secretaria():
     def agregar_uc_aprobada(self, aprobada: UC) -> bool:
         """
         Agrega una materia aprobada al expediente del estudiante.
-
         Args:
             aprobada (UC): Objeto UC de la materia a agregar.
-
         Returns:
             bool: True si se agregó correctamente, False si ya existía.
         """
@@ -440,15 +492,16 @@ class Secretaria():
     def quitar_uc_aprobada(self, materia: UC) -> bool:
         """
         Elimina una UC aprobada del expediente.
-
         Args:
             materia (UC): Objeto UC de la materia a eliminar.
-
         Returns:
             bool: True si se eliminó correctamente.
         """
         self.expediente._quitar_uc_aprobada(materia)
         return True
     
-    # def ver_inscriptos(self):
-    #     return self.expediente.verListaInscriptos()
+    def ver_inscriptos_examen(self):
+        return self.expediente._inscriptos_examen()
+    
+    def ver_inscriptos_matriculas(self):
+        return self.expediente._inscriptos_matriculas()
