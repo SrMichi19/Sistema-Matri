@@ -1,4 +1,8 @@
 {
-    "Matriculas": {},
-    "Examenes": {}
+    "Matriculas": {
+        "Álgebra, Análisis y Geometría Analítica": []
+    },
+    "Examenes": {
+        "Álgebra, Análisis y Geometría Analítica": []
+    }
 }
