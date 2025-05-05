@@ -40,9 +40,12 @@ class UC():
             semestre (str): Clave del semestre correspondiente en el diccionario.
             codigo (str): Código de la unidad curricular.
         """
-        self.plan = plan.cargarPlanEstudio()
-        self.semestre = semestre
-        self.codigo = codigo
+        if isinstance(plan, PlanEstudio) and isinstance(semestre, str) and isinstance(codigo, str):
+            self.plan = plan.cargarPlanEstudio()
+            self.semestre = semestre
+            self.codigo = codigo
+        else:
+            raise ValueError("Uno de los argumentos ingresados es incorrecto")
 
     def infoUC(self):
         """
@@ -112,6 +115,19 @@ class GestorExpediente:
             ci (int): Cédula de identidad del estudiante.
             añoIngreso (int): Año de ingreso a la carrera.
         """
+
+        if not isinstance(nombre, str) or not nombre.strip():
+            print("Error: El nombre del estudiante no puede estar vacío.")
+            return False
+
+        if not isinstance(ci, int) or ci <= 0:
+            print("Error: La cédula debe ser un número entero positivo.")
+            return False
+
+        if not isinstance(añoIngreso, int) or añoIngreso < 2000 or añoIngreso > 2100:
+            print("Error: El año de ingreso debe ser válido.")
+            return False
+
         self.datos = {"Nombre": nombre,
                       "Cedula": ci,
                       "Año Ingreso": añoIngreso,
@@ -363,16 +379,19 @@ class Estudiante():
         Args:
             usuario (GestorExpediente): Gestor del archivo JSON del estudiante.
         """
-        self.usuario = usuario
+        if isinstance (usuario, GestorExpediente):
+            self.usuario = usuario
 
-        self.estudiante = usuario.cargarDatos(self.usuario.archivo)
-        self.nombre = self.estudiante["Nombre"]
-        self.cedula = self.estudiante["Cedula"]
-        self.aprobadas = self.estudiante["Materias Aprobadas"]
-        self.matriculadas = self.estudiante["Materias Matriculadas"]
-        self.examen = self.estudiante["Inscripción Examen"]
-        self.creditos = self.estudiante["Créditos"]
-
+            self.estudiante = usuario.cargarDatos(self.usuario.archivo)
+            self.nombre = self.estudiante["Nombre"]
+            self.cedula = self.estudiante["Cedula"]
+            self.aprobadas = self.estudiante["Materias Aprobadas"]
+            self.matriculadas = self.estudiante["Materias Matriculadas"]
+            self.examen = self.estudiante["Inscripción Examen"]
+            self.creditos = self.estudiante["Créditos"]
+        else:
+            raise ValueError("Error: El expediente ingresado no es válido")
+        
     def info_estudiante(self) -> tuple:
         """
         Devuelve nombre y cédula del estudiante.
@@ -395,24 +414,33 @@ class Estudiante():
         Args:
             materia (UC): Objeto UC con la información de la materia.
         Returns:
-            bool: True si cumple con las previas, False si no cumple.
+            True si se realizo la inscripción
+            False: Error: El argumento proporcionado no es una unidad curricular válida.
         """
-
-        self.usuario._inscribir_examen(materia)
-        return True
+        try:
+            self.usuario._inscribir_examen(materia)
+            return True
+        except:
+            return False       
 
     def quitar_examen(self, materia: UC):
         """
         Método para eliminar la inscripción a un examen.
         Args:
             materia (UC): Materia a quitar.
-        """
-        self.usuario._quitar_examen(materia)
-        return True
+        """ 
+        try:
+            self.usuario._quitar_examen(materia)
+            return True
+        except:
+            return False
     
     def matricular_uc(self, materia: UC):
-        self.usuario._matricular_uc(materia)
-        return True
+        try:
+            self.usuario._matricular_uc(materia)
+            return True
+        except:
+            return False 
     
     def desmatricular_uc(self, materia: UC):
         self.usuario._desmatricular_uc(materia)
@@ -431,8 +459,6 @@ class Estudiante():
                 f"Materias Matriculadas: {self.matriculadas}\n"
                 f"Inscripcion Examenes: {self.examen}\n"
                 f"Créditos: {self.creditos}")
-
-
 class Secretaria():
     """ 
     Representa a la coordinadora o secretaria académica.
@@ -444,6 +470,9 @@ class Secretaria():
         Args:
             nombre (str): Nombre de la secretaria.
         """
+        if not isinstance(nombre, str):
+            raise NameError ("Error: Ingrese un nombre")
+        
         self.nombre = nombre
 
     def cargar_estudiante(self, expediente: GestorExpediente):
@@ -452,16 +481,26 @@ class Secretaria():
         Args:
             expediente (GestorExpediente): Archivo del estudiante.
         """
-        self.expediente = expediente
+        if isinstance(expediente, GestorExpediente):
+            self.expediente = expediente
+            return True
+        else:
+            return False
 
     def inscribir_examen(self, materia: UC):
         """
         Inscribe al estudiante a un examen.
         Args:
             materia (UC): Objeto UC al que se quiere inscribir.
+        Returns:
+                True: Se inscribio al examen correctamente
+                Faslse: Hubo un error al inscribir al estudiante a examen
         """
-
-        self.expediente._inscribir_examen(materia)
+        try:
+            self.expediente._inscribir_examen(materia)
+            return True
+        except:
+            return False 
 
     def quitar_examen(self, materia: UC):
         """
@@ -469,10 +508,18 @@ class Secretaria():
         Args:
             materia (UC): Materia a quitar.
         """
-        self.expediente._quitar_examen(materia)
+        try:
+            self.expediente._quitar_examen(materia)
+            return True
+        except:
+            return False
     
     def matricular_uc(self, materia: UC):
-        self.expediente._matricular_uc(materia)
+        try:
+            self.expediente._matricular_uc(materia)
+            return True
+        except:
+            return False
 
     def desmatricular_uc(self, materia: UC):
         self.expediente._desmatricular_uc(materia)
@@ -483,10 +530,9 @@ class Secretaria():
         Args:
             aprobada (UC): Objeto UC de la materia a agregar.
         Returns:
-            bool: True si se agregó correctamente, False si ya existía.
+            bool: True si se agregó correctamente, False si hubo un error.
         """
         self.expediente._agregar_uc_aprobada(aprobada)
-
         return True
     
     def quitar_uc_aprobada(self, materia: UC) -> bool:
